@@ -10,9 +10,9 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-#import <zego_express_engine/ZegoCustomVideoCaptureManager.h>
+// #import <zego_express_engine/ZegoCustomVideoCaptureManager.h>
 
-@interface ZegoBeautyCamera : NSObject<ZegoFlutterCustomVideoCaptureHandler>
+@interface ZegoBeautyCamera : NSObject
 
 + (void)setup;
 

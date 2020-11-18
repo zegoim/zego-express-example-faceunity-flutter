@@ -8,6 +8,7 @@
 #import "ZegoBeautyCamera.h"
 #import "FURenderer.h"
 #import "authpack.h"
+#import <objc/message.h>
 
 @interface ZegoBeautyCamera()<AVCaptureVideoDataOutputSampleBufferDelegate> {
     dispatch_queue_t _sampleBufferCallbackQueue;
@@ -15,7 +16,9 @@
     int frameID;
 }
 
-//@property (nonatomic, strong) ZegoCustomVideoCaptureClient *client;
+@property (nonatomic, strong) id customVideoCaptureManager;
+@property (nonatomic, assign) SEL sendCVPixelBufferSelector;
+
 @property (nonatomic, assign) BOOL isCaptured;
 @property (nonatomic, strong) AVCaptureDeviceInput *input;
 @property (nonatomic, strong) AVCaptureVideoDataOutput *output;
@@ -33,7 +36,7 @@
         int err = [[FURenderer shareRenderer] setupWithData:nil dataSize:0 ardata:nil authPackage:&g_auth_package authSize:sizeof(g_auth_package) shouldCreateContext:YES];
         NSData *ai_face_processor = [NSData dataWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"ai_face_processor.bundle" ofType:nil]];
         [FURenderer loadAIModelFromPackage:(void*)ai_face_processor.bytes size:(int)ai_face_processor.length aitype:FUAITYPE_FACEPROCESSOR];
-        
+
         NSLog(@"FU SET UP err: %d", err);
     });
 }
@@ -43,17 +46,24 @@
         _sampleBufferCallbackQueue = dispatch_queue_create("im.zego.customCamera.outputCallbackQueue", DISPATCH_QUEUE_SERIAL);
         _isFrontCamera = YES;
         frameID = 0;
-        
+
         NSString *path = [[NSBundle mainBundle] pathForResource:@"face_beautification" ofType:@"bundle"];
         fuItems[0] = [FURenderer itemWithContentsOfFile:path];
+
+        Class managerClass = NSClassFromString(@"ZegoCustomVideoCaptureManager");
+        SEL managerSelector = NSSelectorFromString(@"sharedInstance");
+        id sharedManager = ((id (*)(id, SEL))objc_msgSend)(managerClass, managerSelector);
+        self.customVideoCaptureManager = sharedManager;
+
+        self.sendCVPixelBufferSelector = NSSelectorFromString(@"sendCVPixelBuffer:timestamp:channel:");
     }
-    
+
     return self;
 }
 
 - (void) dealloc {
     NSLog(@"Zego Camera Dealloc");
-    
+
     [FURenderer destroyItem:fuItems[0]];
     fuItems[0] = 0;
 }
@@ -63,7 +73,7 @@
 
     if(position == AVCaptureDevicePositionUnspecified)
         return NO;
-    
+
     AVCaptureDevice * inActivityDevice = [self cameraWithPosition:position];
     if (!inActivityDevice)
         return NO;
@@ -72,7 +82,7 @@
     if(!deviceInput) {
         return NO;
     }
-    
+
     //开始装置设备。
 
     [self.session beginConfiguration];
@@ -84,7 +94,7 @@
         [self.session addInput:deviceInput];
 
         self.activateInput = deviceInput;
-        
+
         if (deviceInput.device.position == AVCaptureDevicePositionFront) {
             self.isFrontCamera = YES;
         } else {
@@ -93,14 +103,14 @@
 
         // 使用前置摄像头时，需调用 SDK 设置预览水平镜像，否则无需使用镜像
         //[self.client setVideoMirrorMode: self.isFrontCamera ? 0 : 2];
-        
+
         AVCaptureVideoDataOutput *output = self.output;
         AVCaptureConnection *captureConnection = [output connectionWithMediaType:AVMediaTypeVideo];
-        
+
         if (captureConnection.isVideoOrientationSupported) {
             captureConnection.videoOrientation = AVCaptureVideoOrientationPortrait;
         }
-        
+
         if (deviceInput.device.position == AVCaptureDevicePositionFront) {
             captureConnection.videoMirrored = YES;
         } else {
@@ -116,7 +126,7 @@
 
     //装置完毕后，需要提交此次的修改。
     [self.session commitConfiguration];
-    
+
     [FURenderer onCameraChange];
     return YES;
 
@@ -220,21 +230,21 @@
 }
 
 - (void)loadDefaultBeautyOption {
-    
+
     [FURenderer itemSetParam:fuItems[0] withName:@"heavy_blur" value:@(0)];
     [FURenderer itemSetParam:fuItems[0] withName:@"skin_detect" value:@(1)];
-    
+
     // 0 ~ 2
     [FURenderer itemSetParam:fuItems[0] withName:@"color_level" value:@(1.0)]; // 美白 (0~2)
     // 0 ~ 2
     [FURenderer itemSetParam:fuItems[0] withName:@"red_level" value:@(0.5)]; // 红润 (0~2)
     // 0 ~ 6
     [FURenderer itemSetParam:fuItems[0] withName:@"blur_level" value:@(4.2)]; // 磨皮 (0~6)
-    
-    
+
+
     [FURenderer itemSetParam:fuItems[0] withName:@"face_shape" value:@(4)];
     [FURenderer itemSetParam:fuItems[0] withName:@"face_shape_level" value:@(1.0)];
-    
+
     [FURenderer itemSetParam:fuItems[0] withName:@"eye_enlarging" value:@(0.4)]; //大眼 (0~1)
     [FURenderer itemSetParam:fuItems[0] withName:@"cheek_thinning" value:@(0)]; //瘦脸 (0~1)
     [FURenderer itemSetParam:fuItems[0] withName:@"cheek_v" value:@(0.5)]; //v脸 (0~1)
@@ -256,7 +266,7 @@
 - (AVCaptureDeviceInput *)input {
     if (!_input) {
             NSArray *cameras= [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-            
+
             // Note: This demonstration selects the front camera. Developers should choose the appropriate camera device by themselves.
             NSArray *captureDeviceArray = [cameras filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"position == %d", AVCaptureDevicePositionFront]];
             if (captureDeviceArray.count == 0) {
@@ -264,7 +274,7 @@
                 return nil;
             }
             AVCaptureDevice *camera = captureDeviceArray.firstObject;
-            
+
             NSError *error = nil;
             AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:camera error:&error];
             if (error) {
@@ -290,65 +300,65 @@
 
 - (void)onStart:(int)channel {
     self.isCaptured = YES;
-    
+
     [self.session beginConfiguration];
-    
+
     if ([self.session canSetSessionPreset:AVCaptureSessionPresetHigh]) {
         [self.session setSessionPreset:AVCaptureSessionPresetHigh];
     }
-    
+
     AVCaptureDeviceInput *input = self.input;
-    
+
     if ([self.session canAddInput:input]) {
         [self.session addInput:input];
-        
+
         self.activateInput = input;
-        
+
         if (input.device.position == AVCaptureDevicePositionFront) {
             self.isFrontCamera = YES;
         } else {
             self.isFrontCamera = NO;
         }
-        
+
         // 相机帧率默认值为30
         [self setCameraFrameRate:30];
-        
+
     }
-    
-    
+
+
     AVCaptureVideoDataOutput *output = self.output;
-    
+
     if ([self.session canAddOutput:output]) {
         [self.session addOutput:output];
     }
-    
+
     AVCaptureConnection *captureConnection = [output connectionWithMediaType:AVMediaTypeVideo];
-    
+
     if (captureConnection.isVideoOrientationSupported) {
         captureConnection.videoOrientation = AVCaptureVideoOrientationPortrait;
     }
-    
+
     if (input.device.position == AVCaptureDevicePositionFront) {
         captureConnection.videoMirrored = YES;
     } else {
         captureConnection.videoMirrored = NO;
     }
-    
+
     [self.session commitConfiguration];
-    
+
     if (!self.session.isRunning) {
         [self.session startRunning];
     }
-    
+
     [self loadDefaultBeautyOption];
 }
 
 - (void)onStop {
-    
+
     if (self.session.isRunning) {
         [self.session stopRunning];
     }
-    
+
     self.isCaptured = NO;
 }
 
@@ -357,20 +367,23 @@
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
     CVPixelBufferRef buffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CMTime timeStamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    
+
     // 切换了前后摄像头之后，可能会有几帧延迟，此时摄像头状态和实际出帧标记会有不一致的情况，丢弃这几帧
     if((self.isFrontCamera && connection.videoMirrored == NO) || (!self.isFrontCamera && connection.videoMirrored))
         return;
-    
-    
+
+
     CVPixelBufferRef processedBuffer = [[FURenderer shareRenderer] renderPixelBuffer:buffer withFrameId:frameID items:fuItems itemCount:1];
     frameID += 1;
-    
+
     if(self.isCaptured) {
-        
-        //[[ZegoCustomVideoCaptureManager]  sendCVPixelBuffer:processedBuffer timestamp:timeStamp];
-        //[[ZegoCustomVideoCaptureManager] sharedInstance] sendCVPixelBuffer:processedBuffer timestamp:timeStamp];
-        [[ZegoCustomVideoCaptureManager sharedInstance] sendCVPixelBuffer:processedBuffer timestamp:timeStamp channel: 0];
+
+        // [[ZegoCustomVideoCaptureManager]  sendCVPixelBuffer:processedBuffer timestamp:timeStamp];
+        // [[ZegoCustomVideoCaptureManager] sharedInstance] sendCVPixelBuffer:processedBuffer timestamp:timeStamp];
+        // [[ZegoCustomVideoCaptureManager sharedInstance] sendCVPixelBuffer:processedBuffer timestamp:timeStamp channel: 0];
+
+        // 走 runtime 解决 Swift 动态库工程无法 import 其他库的问题
+        ((void (*)(id, SEL, CVPixelBufferRef, CMTime, int))objc_msgSend)(self.customVideoCaptureManager, self.sendCVPixelBufferSelector, processedBuffer, timeStamp, 0);
     }
 }
 
