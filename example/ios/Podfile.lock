@@ -1,0 +1,53 @@
+PODS:
+  - Flutter (1.0.0)
+  - Nama (7.1.2)
+  - "permission_handler (5.0.1+1)":
+    - Flutter
+  - shared_preferences (0.0.1):
+    - Flutter
+  - zego_express_engine (1.0.0):
+    - Flutter
+    - ZegoExpressEngine (= 1.17.5)
+  - zego_faceunity_plugin (0.0.1):
+    - Flutter
+    - Nama (= 7.1.2)
+  - ZegoExpressEngine (1.17.5):
+    - ZegoExpressEngine/Video (= 1.17.5)
+  - ZegoExpressEngine/Video (1.17.5)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - zego_express_engine (from `.symlinks/plugins/zego_express_engine/ios`)
+  - zego_faceunity_plugin (from `.symlinks/plugins/zego_faceunity_plugin/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Nama
+    - ZegoExpressEngine
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
+  zego_express_engine:
+    :path: ".symlinks/plugins/zego_express_engine/ios"
+  zego_faceunity_plugin:
+    :path: ".symlinks/plugins/zego_faceunity_plugin/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Nama: dab0229d82e11d5f77d29e30ae81a294b7b8fae9
+  permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  zego_express_engine: 016e088536353620e11d5b120204367f947680f7
+  zego_faceunity_plugin: cb7e1715a325013214e3037fe705b448c2b3add4
+  ZegoExpressEngine: 067562afb64ae2ef7be70d6fee933d593b0a4f0f
+
+PODFILE CHECKSUM: 8e679eca47255a8ca8067c4c67aab20e64cb974d
+
+COCOAPODS: 1.10.0.rc.1
