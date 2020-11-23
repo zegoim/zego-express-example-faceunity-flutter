@@ -353,7 +353,7 @@
     [self loadDefaultBeautyOption];
 }
 
-- (void)onStop {
+- (void)onStop:(int)channel {
 
     if (self.session.isRunning) {
         [self.session stopRunning];
