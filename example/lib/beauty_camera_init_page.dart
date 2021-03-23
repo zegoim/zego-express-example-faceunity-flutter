@@ -77,7 +77,7 @@ class _BeautyCameraInitPageState extends State<BeautyCameraInitPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // resizeToAvoidBottomPadding: false,
+      // resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('PublishStream - Init'),
       ),

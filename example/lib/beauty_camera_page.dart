@@ -634,7 +634,7 @@ class _BeautyCameraPageState extends State<BeautyCameraPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text(_title),
         ),
