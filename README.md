@@ -1,15 +1,5 @@
-# zego_faceunity_plugin
+# Zego Express Example FaceUnity Flutter
 
-A new flutter plugin project.
+This sample code demostrates how to use [ZegoExpressEngine](https://pub.dartlang.org/packages/zego_express_engine) (Zego RTC Flutter SDK) with [FaceUnity](https://www.faceunity.com) (A native beauty video processing SDK)
 
-## Getting Started
-
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
+It also demostrates how to use the [CustomVideoCapture](https://pub.dev/documentation/zego_express_engine/latest/zego_express_engine/ZegoExpressEngineCustomVideoIO/enableCustomVideoCapture.html) function of the [ZegoExpressEngine](https://pub.dartlang.org/packages/zego_express_engine) SDK.

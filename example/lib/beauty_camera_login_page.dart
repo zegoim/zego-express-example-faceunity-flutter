@@ -84,7 +84,7 @@ class _BeautyCameraLoginPageState extends State<BeautyCameraLoginPage> {
         title: Text('Tips'),
         content: Text('Please go to the settings page to open the camera/microphone permissions'),
         actions: <Widget>[
-          FlatButton(
+              TextButton(
             child: Text('Cancel'),
             onPressed: () => Navigator.of(context).pop()
           ),
