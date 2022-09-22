@@ -1,18 +1,17 @@
 name: zego_faceunity_plugin
 description: A new flutter plugin project.
 version: 0.0.1
-author:
-homepage:
+homepage: https://zegocloud.com
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.20.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  zego_express_engine: ^1.17.5
+  zego_express_engine: ^2.22.0
 
 dev_dependencies:
   flutter_test:
